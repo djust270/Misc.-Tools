@@ -18,8 +18,7 @@ $CompInfo.add([pscustomobject]@{
    )
 
 
-$header = @{ 'Content-Type' = "application/json" }
 $flow = # URL in PowerAutomate Flow for HTTP Request
 $flowheader = $compinfo | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Post -Body $flowheader -uri $flow -Headers $header
+Invoke-RestMethod -Method Post -Body $flowheader -uri $flow -ContentType Application\JSON
 		
