@@ -83,7 +83,7 @@ Install−PackageProvider −Name Nuget −Force
 
 # Install PS Modules
 Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
-$modules = 'MSOnline','AzureADPreview','ExchangeOnlineManagement','Microsoft.Online.SharePoint.PowerShell','ImportExcel','MicrosoftTeams'
+$modules = @('MSOnline','AzureADPreview','ExchangeOnlineManagement','Microsoft.Online.SharePoint.PowerShell','ImportExcel','MicrosoftTeams')
 $i = 1
 foreach ($module in $modules)
 {
