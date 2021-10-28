@@ -25,6 +25,7 @@ do {
     }
 }
 Until (($weatherGet) -or ($retryCount -eq 4))
+if ($retryCount -eq 4){Write-Output "Error encountered invoking REST GET request to API.Weather.Gov. Breaking execution" ; break}
 
 #Get todays date. Manipulate string to match JSON date object returned from api.weather.gov
 $TodayManipulate = (($today).ToShortDateString() -replace '/','-') -split '-'
