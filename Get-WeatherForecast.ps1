@@ -14,7 +14,17 @@ $getLatLong = Invoke-restmethod -uri "https://api.promaptools.com/service/us/zip
 $getPoints = Invoke-RestMethod -uri "https://api.weather.gov/points/$($getLatLong.latitude),$($getLatLong.longitude)"
 
 #Get 7 day weather forecast
-$weatherGet = Invoke-RestMethod -Uri $getPoints.properties.forecast
+$retryCount = 0
+do {    
+    try {
+    $weatherGet = Invoke-RestMethod -Uri $getPoints.properties.forecast -ErrorAction Stop
+    }
+    Catch {
+    $retryCount++
+     sleep -Milliseconds 500
+    }
+}
+Until (($weatherGet) -or ($retryCount -eq 4))
 
 #Get todays date. Manipulate string to match JSON date object returned from api.weather.gov
 $TodayManipulate = (($today).ToShortDateString() -replace '/','-') -split '-'
