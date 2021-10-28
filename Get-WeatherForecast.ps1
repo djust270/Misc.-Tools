@@ -3,6 +3,7 @@ param (
 [parameter(mandatory=$true)]
 [string]$zipcode
 )
+$today = [System.DateTime]::Now
 
 #region Weather Variables
 
@@ -16,12 +17,13 @@ $getPoints = Invoke-RestMethod -uri "https://api.weather.gov/points/$($getLatLon
 $weatherGet = Invoke-RestMethod -Uri $getPoints.properties.forecast
 
 #Get todays date. Manipulate string to match JSON date object returned from api.weather.gov
-$TodayManipulate = ((get-date).ToShortDateString() -replace '/','-') -split '-'
+$TodayManipulate = (($today).ToShortDateString() -replace '/','-') -split '-'
 $today = "$($TodayManipulate[2] + '-' + $TodayManipulate[0] + '-' + $TodayManipulate[1])*"
 
 # Do the same for tomorrows date
 $TomorrowManipulate = (((get-date).AddDays(1)).ToShortDateString() -replace '/','-') -split '-'
 $tomorrow = "$($TomorrowManipulate[2] + '-' + $TomorrowManipulate[0] + '-' + $TomorrowManipulate[1])*"
+$tomorrow1= "$(((Get-Date).AddDays(1)).ToShortDateString())*"
 
 # Get today and tomorrows forecasted temperatures
 $todaysTemp = Invoke-RestMethod -Uri 'https://api.weather.gov/gridpoints/LWX/102,88' | select -ExpandProperty properties | select -ExpandProperty temperature | select -ExpandProperty values | select -ExcludeProperty values | where validtime -like "$($today)" | sort value
@@ -39,7 +41,13 @@ $HighTempTomorrow = ($tomorrowsTempF.Temp)[-1]
 
 # Filter 7 day forecast for today and tomorrows forecast
 $forecast = $weatherGet | select -ExpandProperty properties | select -ExpandProperty periods | where number -eq 1
-$tomorrowsForecast = ($weatherGet | select -ExpandProperty properties | select -ExpandProperty periods | where startTime -like $tomorrow)[0]
+if ($host.Version.major -lt 6.0){
+    $tomorrowsForecast = ($weatherGet | select -ExpandProperty properties | select -ExpandProperty periods | where startTime -like $tomorrow)[0]
+    }
+else {
+    $tomorrowsForecast = ($weatherGet | select -ExpandProperty properties | select -ExpandProperty periods | where startTime -like $tomorrow1)[0]
+
+}
 #endregion
 
 
