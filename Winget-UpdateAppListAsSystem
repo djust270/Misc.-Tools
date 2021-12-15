@@ -1,0 +1,33 @@
+#Sample, update apps with WinGet as system account
+
+# Get path for Winget executible
+$Winget = gci "C:\Program Files\WindowsApps" -Recurse -File | where name -like AppInstallerCLI.exe | select -ExpandProperty fullname
+# Uninstall registry key locations
+$uninstallKeys = "registry::HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall", "registry::HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+
+# Build list of installed software based on uninstall keys
+foreach ($key in $uninstallKeys)
+{
+    $SoftwareList += Get-Childitem $key | Get-ItemProperty | where displayname | select -ExpandProperty displayname
+}
+
+# Hash table to translate installed software to Winget Package IDs
+$WinGetPackages = @{
+'Google Chrome' = 'Google.Chrome'
+'Mozilla Firefox (x64 en-US)' = 'Mozilla.Firefox'
+'Microsoft OneDrive' = 'Microsoft.OneDrive' 
+'Notepad++' = 'Notepad++.Notepad++'
+'Microsoft Edge' = 'Microsoft.Edge'
+}
+
+# Index software displaynames in hash table
+$WingetPackages = $WinGetPackages[$SoftwareList]
+
+# Remove null values from array
+$WingetPackages = $WinGetPackages | where {$_}
+
+# Run the upgrade command for installed software only based on our package list
+foreach ($Package in $WinGetPackages){
+write-host "Upgrading $($Package)"
+& $Winget upgrade --id $Package -h --accept-package-agreements --accept-source-agreements
+}
