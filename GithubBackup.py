@@ -1,4 +1,4 @@
-#This script will close all github repostirories for a specified user account
+#This script will clone all github repostirories for a specified user account
 #Example:
 #GithubBackup.py -s C:\users\Dave\github_repos -u djust270
 import requests
