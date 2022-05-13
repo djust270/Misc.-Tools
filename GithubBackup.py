@@ -5,7 +5,7 @@ from operator import contains
 import requests
 import os
 import pathlib
-import argpars
+import argparse
 import platform
 # add script arguments
 parser = argparse.ArgumentParser()
