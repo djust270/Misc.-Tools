@@ -17,7 +17,7 @@ args = vars(parser.parse_args())
 user = args["github_user"]
 save_location = args["save_location"]
 force = args["force"]
-os = platform.system()
+operating_system = platform.system()
 os.chdir(pathlib.Path(save_location))
 if len(os.listdir(pathlib.Path(save_location))) != 0 and force !=True:
     raise Exception('Target directory is not empty. Use the -f flag to force and remove contents of directoy')
@@ -28,9 +28,9 @@ if len(os.listdir(pathlib.Path(save_location))) != 0 and force ==True:
         shutil.rmtree(pathlib.Path(save_location))
         os.mkdir(pathlib.Path(save_location))
     except PermissionError :
-        if os == 'Windows':
+        if operating_system == 'Windows':
             os.system(f"powershell.exe -command \"gci {save_location} | remove-item -recurse -force\"")        
-        elif os == 'Linux' or os == 'Darwin':
+        elif operating_system == 'Linux' or operating_system == 'Darwin':
             os.system(f"rm -r -f {save_location}")
 base_url = (f"https://api.github.com/users/{user}/repos")
 get = requests.get(base_url)
