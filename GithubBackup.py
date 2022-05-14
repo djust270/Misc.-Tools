@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-s", dest="save_location" , type=str, help="Location to save repositories")
 parser.add_argument("-u", dest= "github_user" , type=str, help="Github Username to backup")
 parser.add_argument("-f", action='store_true', dest="force", help="Force operation if target directory is not empty All contents of targer dir will be removed!")
-parser.add_argument("-a", action='store_true', dest='mkarchive', help="Create a sigle archive of all cloned repositories")
+parser.add_argument("-a", action='store_true', dest='mkarchive', help="Create a single archive of all cloned repositories")
 args = vars(parser.parse_args())
 # List and backup all github repositories
 user = args["github_user"]
