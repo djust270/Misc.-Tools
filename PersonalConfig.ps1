@@ -27,8 +27,23 @@ $wallpaperURL = "https://images.hdqwalls.com/download/windows-xp-bliss-4k-lu-256
 Function Set-WallPaper($Value)
 
 {
- Set-ItemProperty -path 'HKCU:\Control Panel\Desktop\' -name wallpaper -value $value
- rundll32.exe user32.dll, UpdatePerUserSystemParameters 1, True
+	$code = @' 
+using System.Runtime.InteropServices; 
+namespace Win32{ 
+    
+     public class Wallpaper{ 
+        [DllImport("user32.dll", CharSet=CharSet.Auto)] 
+         static extern int SystemParametersInfo (int uAction , int uParam , string lpvParam , int fuWinIni) ; 
+         
+         public static void SetWallpaper(string thePath){ 
+            SystemParametersInfo(20,0,thePath,3); 
+         }
+    }
+} 
+'@
+	
+	add-type $code
+	[Win32.Wallpaper]::SetWallpaper($Value)	
 }
 
 function Install-VisualC {
@@ -40,12 +55,7 @@ start-process "$env:temp\vc_redist.x64.exe" -argumentlist "/q /norestart" -Wait
 }
 
 function Install-Winget {
-$releases_url = "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$releases = Invoke-RestMethod -uri "$($releases_url)"
-$latestRelease = $releases.assets | Where { $_.browser_download_url.EndsWith("msixbundle") } | Select -First 1
-Add-AppxPackage -Path 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
-Add-AppxPackage -Path $latestRelease.browser_download_url
+Add-AppxPackage -Path 'https://aka.ms/getwinget'
 }
 
 function WingetRun {
@@ -447,14 +457,25 @@ $Apps = (New-Object -Com Shell.Application).NameSpace('shell:::{4234d49b-0245-4d
 mkdir "$env:appdata\Wallpaper"
 
 # Download Wallpaper
-$client.DownloadFile($wallpaperURL,"$env:appdata\Wallpaper\tired-city-scifi-car-du-2560x1440.jpg")
+$client.DownloadFile($wallpaperURL,"$env:appdata\Wallpaper\windows-xp-bliss-4k-lu-2560x1440.jpg")
 $client.Dispose()
 
 # Set Wallpaper
-Set-WallPaper -value "$env:appdata\Wallpaper\tired-city-scifi-car-du-2560x1440.jpg"
+Set-WallPaper -value "$env:appdata\Wallpaper\windows-xp-bliss-4k-lu-2560x1440.jpg"
 
 Install-VisualC
 Install-Winget
+# Try winget command
+try
+{
+	winget | out-null
+}
+catch
+{
+	"Installing Winget"
+	Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
+}
+
 
 # Foreach loop to install packages
 
