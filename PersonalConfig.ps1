@@ -4,7 +4,7 @@
 #>
 using namespace System.Net
 $client = [WebClient]::new()
-
+$isAdmin = [bool](([System.Security.Principal.WindowsIdentity]::GetCurrent()).groups -match "S-1-5-32-544")
 # Add WinGet Packages.  
 
 $wingetPackages = @(
@@ -55,7 +55,9 @@ start-process "$env:temp\vc_redist.x64.exe" -argumentlist "/q /norestart" -Wait
 }
 
 function Install-Winget {
-Add-AppxPackage -Path 'https://aka.ms/getwinget'
+	#Add-AppxPackage -Path 'https://aka.ms/getwinget'
+	Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
+	Read-Host "Press Enter once AppInstaller update is complete"
 }
 
 function WingetRun {
@@ -454,6 +456,11 @@ $Apps = (New-Object -Com Shell.Application).NameSpace('shell:::{4234d49b-0245-4d
 
 #endregion
 # Create directory for our wallpaper image
+if (-not ($isAdmin))
+{
+	Throw "You must run this script with administrative privileges"
+	break
+}
 mkdir "$env:appdata\Wallpaper"
 
 # Download Wallpaper
@@ -464,7 +471,7 @@ $client.Dispose()
 Set-WallPaper -value "$env:appdata\Wallpaper\windows-xp-bliss-4k-lu-2560x1440.jpg"
 
 Install-VisualC
-Install-Winget
+
 # Try winget command
 try
 {
@@ -472,8 +479,17 @@ try
 }
 catch
 {
-	"Installing Winget"
-	Start-Process "ms-appinstaller:?source=https://aka.ms/getwinget"
+	Install-Winget
+}
+# Try winget command again
+try
+{
+	winget | out-null
+}
+catch
+{
+	Throw "Winget not installed ; ending script"
+	break
 }
 
 
@@ -498,7 +514,7 @@ Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\
 # Show file extensions in explorer
 Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name HiddFileExt -Value 0
 
-Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name HiddeIcons -Value 0 
+Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name HiddeIcons -Value 0
 
 
 # Restart Explorer
@@ -527,13 +543,11 @@ Catch {
       }
 }
 
-
 #Examples: 
 # Unpin Mail App and Windows Store
 
 UnPin-AppFromTaskBar -AppName "Microsoft Store" -Verb taskbarunpin
 UnPin-AppFromTaskBar -AppName Mail -Verb taskbarunpin
-WaitForOffice # wait until office apps are installed
 # Pin Apps to taskbar
 $StartMenuFolder = "$env:programdata\Microsoft\Windows\Start Menu\Programs"
 Pin-ToTaskbar -targetfile "$StartMenuFolder\Google Chrome.lnk" -Action pin
