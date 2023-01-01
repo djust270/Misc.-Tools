@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>AllowPreReleaseInstallation</key>
+			<false/>
+			<key>AutomaticCheckEnabled</key>
+			<true/>
+			<key>AutomaticDownload</key>
+			<true/>
+			<key>AutomaticallyInstallAppUpdates</key>
+			<true/>
+			<key>AutomaticallyInstallMacOSUpdates</key>
+			<true/>
+			<key>ConfigDataInstall</key>
+			<true/>
+			<key>CriticalUpdateInstall</key>
+			<true/>
+			<key>PayloadDisplayName</key>
+			<string>Software Update</string>
+			<key>PayloadIdentifier</key>
+			<string>com.github.erikberglund.ProfileCreator.FD7BE83D-80A7-4253-B59E-EAF491541657.com.apple.SoftwareUpdate.4E2D2D2A-1CAD-4D39-932D-92BAE095730C</string>
+			<key>PayloadOrganization</key>
+			<string></string>
+			<key>PayloadType</key>
+			<string>com.apple.SoftwareUpdate</string>
+			<key>PayloadUUID</key>
+			<string>4E2D2D2A-1CAD-4D39-932D-92BAE095730C</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>Software Update Settings</string>
+	<key>PayloadIdentifier</key>
+	<string>com.github.erikberglund.ProfileCreator.FD7BE83D-80A7-4253-B59E-EAF491541657</string>
+	<key>PayloadOrganization</key>
+	<string>TAG</string>
+	<key>PayloadScope</key>
+	<string>System</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>FD7BE83D-80A7-4253-B59E-EAF491541657</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
