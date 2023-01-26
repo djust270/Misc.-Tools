@@ -25,10 +25,7 @@ function Get-RegUninstallKey
 	
 	foreach ($key in $uninstallKeys)
 	{
-		$softwareTable += Get-Childitem $key | 
-		Get-ItemProperty | 
-		Where-Object {$_.displayname} 
-		| Sort-Object -Property displayname
+		$softwareTable += Get-Childitem $key | Get-ItemProperty | Where-Object {$_.displayname} | Sort-Object -Property displayname
 	}
 	if ($DisplayName)
 	{
@@ -55,7 +52,7 @@ if ($UnInstallString -match 'msiexec'){
 
     # Test the MSIProduct code by type casting to GUID. This will throw a terminating error if incorrect
     try {
-        [GUID]$MsiProductCode 
+        [GUID]$MsiProductCode | Out-Null
     }
     Catch {
         # Catch the error and output to file
