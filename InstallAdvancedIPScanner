@@ -1,0 +1,9 @@
+# Download and install the latest version of Advanced IP Scanner
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls11 -bor [System.Net.SecurityProtocolType]::Tls12;
+$advip = invoke-webrequest 'https://www.advanced-ip-scanner.com/download/' -UseBasicParsing
+$downloadurl = ($advip.links.href -match 'exe') -match 'Scanner'
+$downloadname = ((($advip.links.href -match 'exe') -match 'Scanner') -split '/')[-1]
+Write-Host "Downloading ${downloadname}"
+(New-Object System.Net.WebClient).DownloadFile("$downloadurl", "$env:temp\$downloadname")
+Clear-Host
+& "$env:temp\$downloadname"
