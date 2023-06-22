@@ -11,5 +11,5 @@
 		Re-registers all MOF files. MOF files contain the classes and class instances of the WMI objects contained in the WMI repository
 #>
 
-$mof = gci "$env:Windir\system32\WBEM" -include *.mof, *.mfl -recurse | foreach { $_ | select-string "uninstall" | select -expandproperty path }
+$mof = gci "$env:Windir\system32\WBEM" -include *.mof, *.mfl -recurse | foreach { $_  | select -expandproperty path }
 $mof | foreach { & "$env:Windir\system32\WBEM\mofcomp" $_ }
