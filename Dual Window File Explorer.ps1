@@ -8,13 +8,11 @@ $mainForm.Text = "Dual Pane File Explorer"
 $mainForm.Size = New-Object System.Drawing.Size(1200, 700)
 $mainForm.StartPosition = "CenterScreen"
 
-# Create a TableLayoutPanel to organize the two explorer views
-$tableLayout = New-Object System.Windows.Forms.TableLayoutPanel
-$tableLayout.Dock = [System.Windows.Forms.DockStyle]::Fill
-$tableLayout.ColumnCount = 2
-$tableLayout.RowCount = 1
-$tableLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50)))
-$tableLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50)))
+# Create a SplitContainer to organize the two explorer views
+$splitContainer = New-Object System.Windows.Forms.SplitContainer
+$splitContainer.Dock = [System.Windows.Forms.DockStyle]::Fill
+$splitContainer.Orientation = [System.Windows.Forms.Orientation]::Vertical
+$splitContainer.SplitterWidth = 8  # Width of the splitter bar
 
 # Function to create an Explorer WebBrowser
 function New-ExplorerBrowser {
@@ -33,6 +31,10 @@ function New-ExplorerBrowser {
     $navPanel = New-Object System.Windows.Forms.Panel
     $navPanel.Dock = [System.Windows.Forms.DockStyle]::Top
     $navPanel.Height = 25
+    
+    # Create a container panel for the browser
+    $browserContainer = New-Object System.Windows.Forms.Panel
+    $browserContainer.Dock = [System.Windows.Forms.DockStyle]::Fill
     
     # Back button
     $controls.backButton = New-Object System.Windows.Forms.Button
@@ -64,27 +66,34 @@ function New-ExplorerBrowser {
     $controls.homeButton.Location = New-Object System.Drawing.Point(105, 0)
     $controls.homeButton.Height = 25
     
-    # Wire up home button
-    $controls.homeButton.Add_Click({ 
-        $controls.browser.Navigate("shell:MyComputerFolder")
-    }.GetNewClosure())
-    
     # Address bar
     $controls.addressBar = New-Object System.Windows.Forms.TextBox
     $controls.addressBar.Location = New-Object System.Drawing.Point(140, 0)
     $controls.addressBar.Height = 25
-    $controls.addressBar.Width = 360
+    $controls.addressBar.Anchor = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
+    $controls.addressBar.Width = $hostPanel.Width - 380  # Adjust width dynamically
     
     # Search box
     $controls.searchBox = New-Object System.Windows.Forms.TextBox
-    $controls.searchBox.Location = New-Object System.Drawing.Point(510, 0)
+    $controls.searchBox.Location = New-Object System.Drawing.Point($($controls.addressBar.Right + 10), 0)
     $controls.searchBox.Height = 25
-    $controls.searchBox.Width = 240
+    $controls.searchBox.Width = 200
+    $controls.searchBox.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
     $controls.searchBox.Text = "Search..."
     $controls.searchBox.ForeColor = [System.Drawing.Color]::DarkGray
-    $controls.searchBox.BackColor = [System.Drawing.Color]::White
+    
+    # Create WebBrowser
+    $controls.browser = New-Object System.Windows.Forms.WebBrowser
+    $controls.browser.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $controls.browser.AllowWebBrowserDrop = $false
+    $controls.browser.IsWebBrowserContextMenuEnabled = $true
+    $controls.browser.WebBrowserShortcutsEnabled = $true
+    $controls.browser.ScriptErrorsSuppressed = $true
 
-    # Handle search box placeholder text
+    $controls.homeButton.Add_Click({ 
+        $controls.browser.Navigate("shell:MyComputerFolder")
+    }.GetNewClosure())
+
     $controls.searchBox.Add_GotFocus({
         if ($controls.searchBox.Text -eq "Search...") {
             $controls.searchBox.Text = ""
@@ -98,14 +107,6 @@ function New-ExplorerBrowser {
             $controls.searchBox.ForeColor = [System.Drawing.Color]::DarkGray
         }
     }.GetNewClosure())
-
-    # Create WebBrowser
-    $controls.browser = New-Object System.Windows.Forms.WebBrowser
-    $controls.browser.Dock = [System.Windows.Forms.DockStyle]::Fill
-    $controls.browser.AllowWebBrowserDrop = $false
-    $controls.browser.IsWebBrowserContextMenuEnabled = $true
-    $controls.browser.WebBrowserShortcutsEnabled = $true
-    $controls.browser.ScriptErrorsSuppressed = $true
 
     # Wire up navigation events
     $controls.backButton.Add_Click({
@@ -200,7 +201,7 @@ function New-ExplorerBrowser {
         $controls.forwardButton.Enabled = $controls.browser.CanGoForward
     }.GetNewClosure())
 
-    # Add controls to panels
+    # Add controls to panels in the correct order
     $navPanel.Controls.AddRange(@(
         $controls.backButton,
         $controls.forwardButton,
@@ -209,7 +210,13 @@ function New-ExplorerBrowser {
         $controls.addressBar,
         $controls.searchBox
     ))
-    $hostPanel.Controls.AddRange(@($navPanel, $controls.browser))
+
+    # Add the browser to its container
+    $browserContainer.Controls.Add($controls.browser)
+
+    # Add panels to the host panel in the correct order
+    $hostPanel.Controls.Add($browserContainer)
+    $hostPanel.Controls.Add($navPanel)
     
     # Initial navigation
     $controls.browser.Navigate($initialPath)
@@ -221,11 +228,15 @@ function New-ExplorerBrowser {
 $leftPanel, $leftBrowser = New-ExplorerBrowser
 $rightPanel, $rightBrowser = New-ExplorerBrowser
 
-$tableLayout.Controls.Add($leftPanel, 0, 0)
-$tableLayout.Controls.Add($rightPanel, 1, 0)
+# Add panels to the split container
+$splitContainer.Panel1.Controls.Add($leftPanel)
+$splitContainer.Panel2.Controls.Add($rightPanel)
 
-# Add the TableLayoutPanel to the main form
-$mainForm.Controls.Add($tableLayout)
+# Add the SplitContainer to the main form
+$mainForm.Controls.Add($splitContainer)
+
+# Set the SplitContainer initial position
+$splitContainer.SplitterDistance = $mainForm.Width / 2
 
 # Create main menu
 $mainMenu = New-Object System.Windows.Forms.MenuStrip
